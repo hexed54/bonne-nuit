@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pour Valentina — V7</title>
+  <style>
+    :root{
+      --bg-0:#020106;
+      --bg-1:#070811;
+      --bg-2:#110916;
+      --bg-3:#170b16;
+      --ink:#f6f2ef;
+      --line:rgba(255,255,255,.08);
+      --neon-blue:#628cff;
+      --neon-pink:#ff4fb2;
+      --neon-violet:#9f76ff;
+      --neon-cyan:#6cf0ff;
+      --neon-red:#ff314f;
+      --paper:#fffaf1;
+      --paper-2:#f6ead9;
+      --ink-paper:#2d2330;
+      --env-1:#f6eadb;
+      --env-2:#e7d1b5;
+      --sans:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,serif;
+      --hand:"Snell Roundhand","Segoe Script","Lucida Handwriting","Brush Script MT",cursive;
+      --ease:cubic-bezier(.18,.9,.14,1);
+    }
+
+    *{box-sizing:border-box}
+    html,body{min-height:100%}
+    body{
+      margin:0;
+      overflow:hidden;
+      color:var(--ink);
+      font-family:var(--serif);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(98,140,255,.12), transparent 20%),
+        radial-gradient(circle at 82% 14%, rgba(255,79,178,.12), transparent 18%),
+        radial-gradient(circle at 50% 72%, rgba(108,240,255,.06), transparent 26%),
+        radial-gradient(circle at 60% 30%, rgba(255,49,79,.12), transparent 20%),
+        linear-gradient(180deg,#130912,#09060d 42%,#010106);
+      -webkit-tap-highlight-color:transparent;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background:radial-gradient(circle at center, transparent 56%, rgba(0,0,0,.55) 100%);
+    }
+
+    .bg,.mist,.sparkles,.butterflies{position:fixed;inset:0;pointer-events:none;z-index:2}
+    .bg::before,.bg::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      filter:blur(82px);
+      opacity:.7;
+      animation:floatGlow 10s ease-in-out infinite alternate;
+    }
+    .bg::before{width:420px;height:420px;left:4%;top:8%;background:radial-gradient(circle,rgba(98,140,255,.58),transparent 66%)}
+    .bg::after{width:420px;height:420px;right:4%;top:10%;background:radial-gradient(circle,rgba(255,49,79,.48),transparent 66%);animation-duration:12s}
+    @keyframes floatGlow{from{transform:translateY(0) scale(1)}to{transform:translateY(26px) scale(1.08)}}
+
+    .mist::before,.mist::after{
+      content:"";
+      position:absolute;
+      inset:-10%;
+      filter:blur(28px);
+      background:
+        radial-gradient(circle at 24% 40%, rgba(255,255,255,.03), transparent 18%),
+        radial-gradient(circle at 76% 24%, rgba(255,255,255,.025), transparent 16%),
+        radial-gradient(circle at 72% 78%, rgba(255,255,255,.02), transparent 18%);
+      animation:mistMove 22s linear infinite alternate;
+    }
+    .mist::after{opacity:.7;animation-duration:28s;transform:scale(1.05)}
+    @keyframes mistMove{from{transform:translate(-2%,0)}to{transform:translate(2%,2%)}}
+
+    .spark{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 12px rgba(255,255,255,.7);animation:twinkle linear infinite}
+    @keyframes twinkle{0%,100%{opacity:.08;transform:translateY(0) scale(.8)}50%{opacity:.95;transform:translateY(-8px) scale(1.25)}}
+
+    .site-shell{position:relative;z-index:3;min-height:100vh}
+
+    .menu{
+      position:fixed;
+      left:24px;
+      top:50%;
+      transform:translateY(-50%) translateX(-20px);
+      z-index:30;
+      width:250px;
+      padding:18px;
+      border-radius:28px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(10,8,16,.78), rgba(9,7,13,.56));
+      backdrop-filter:blur(18px);
+      box-shadow:0 24px 60px rgba(0,0,0,.34);
+      opacity:0;
+      visibility:hidden;
+      transition:.7s var(--ease);
+    }
+    body.menu-visible .menu{opacity:1;visibility:visible;transform:translateY(-50%) translateX(0)}
+    .menu-nav{display:flex;flex-direction:column;gap:10px}
+    .menu button,.close-module,.check-btn,.close-letter-btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.04);
+      color:#fff;
+      border-radius:16px;
+      padding:12px 14px;
+      text-align:left;
+      font:500 14px/1.1 var(--sans);
+      cursor:pointer;
+      transition:.24s ease;
+    }
+    .menu button:hover,.close-module:hover,.check-btn:hover,.close-letter-btn:hover{transform:translateX(2px);background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16)}
+    .menu button::before{content:"🦋";margin-right:10px}
+
+    .intro{position:fixed;inset:0;display:grid;place-items:center;z-index:20}
+    .center-stage{position:relative;width:min(100vw,900px);height:min(100vh,720px)}
+    .arrival-trails{position:absolute;inset:0;opacity:.16}
+    .arrival-trails path{fill:none;stroke:rgba(255,255,255,.14);stroke-width:1.2;stroke-dasharray:7 12;animation:dash 10s linear infinite}
+    @keyframes dash{to{stroke-dashoffset:-220}}
+
+    .carrier{position:absolute;left:50%;top:50%;width:500px;height:360px;transform:translate(-50%,-50%);opacity:0;filter:drop-shadow(0 26px 60px rgba(0,0,0,.32));animation:carrierIn 7.4s var(--ease) forwards}
+    @keyframes carrierIn{0%{opacity:0;transform:translate(-50%,-50%) translate(-62vw,18vh) scale(.36) rotate(-14deg)}12%{opacity:1}58%{opacity:1;transform:translate(-50%,-50%) translate(-6vw,1vh) scale(.84) rotate(2deg)}82%{opacity:1;transform:translate(-50%,-50%) translate(0,0) scale(1.02) rotate(-1deg)}100%{opacity:1;transform:translate(-50%,-50%) translate(0,0) scale(1) rotate(0)}}
+    .carrier.ready .envelope{animation:floatEnvelope 4.8s ease-in-out infinite}
+    @keyframes floatEnvelope{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-7px)}}
+
+    .envelope-wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:324px;height:224px;pointer-events:auto;cursor:pointer}
+    .envelope-shadow{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:246px;height:32px;border-radius:999px;background:radial-gradient(circle,rgba(0,0,0,.35),transparent 68%);filter:blur(11px);opacity:.62;transition:.8s ease}
+    .open-prompt{position:absolute;left:50%;bottom:-54px;transform:translateX(-50%);font:500 12px/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;white-space:nowrap;color:rgba(255,255,255,.82);opacity:0;animation:promptIn .9s ease 6s forwards}
+    @keyframes promptIn{to{opacity:1}}
+
+    .envelope{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:314px;height:208px;perspective:1200px;transition:1.2s var(--ease)}
+    .env-back,.env-front,.env-left,.env-right,.env-flap{position:absolute;inset:0;border-radius:18px;overflow:hidden}
+    .env-back{background:linear-gradient(180deg,var(--env-1),var(--env-2));border:1px solid rgba(255,255,255,.3)}
+    .env-front{z-index:3;background:linear-gradient(180deg,#f4e5d3,#e3ccb0);clip-path:polygon(0 100%,0 56%,50% 86%,100% 56%,100% 100%)}
+    .env-left{z-index:2;background:linear-gradient(180deg,#f3ddc5,#e4c8ac);clip-path:polygon(0 0,50% 50%,0 100%)}
+    .env-right{z-index:2;background:linear-gradient(180deg,#f3ddc5,#e4c8ac);clip-path:polygon(100% 0,50% 50%,100% 100%)}
+    .env-flap{z-index:6;transform-origin:50% 0%;transition:1.2s cubic-bezier(.19,.92,.15,1);background:linear-gradient(180deg,#f9efe3,#ead5bd);clip-path:polygon(0 0,100% 0,50% 73%)}
+    .env-seal{position:absolute;left:50%;top:82px;transform:translateX(-50%);width:70px;height:70px;border-radius:50%;z-index:7;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.16), transparent 24%),linear-gradient(180deg,#151518,#060607 70%);box-shadow:0 10px 20px rgba(0,0,0,.38);transition:.6s ease}
+    .env-seal svg{width:44px;height:44px;fill:#f7f2ec}
+    .env-name{position:absolute;right:44px;bottom:18px;z-index:7;color:#2f252c;font-family:var(--hand);font-size:16px;text-align:right;line-height:1.05;width:auto}
+    .env-heart{position:absolute;right:22px;bottom:16px;width:18px;height:18px;z-index:7;filter:drop-shadow(0 0 8px rgba(255,49,79,.3));animation:heartPulse 2.4s ease-in-out infinite}
+    .env-heart svg{width:100%;height:100%;fill:var(--neon-red)}
+    @keyframes heartPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 6px rgba(255,49,79,.22))}50%{transform:scale(1.14);filter:drop-shadow(0 0 14px rgba(255,49,79,.48))}}
+
+    .letter-layer{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:42;padding:20px}
+    .letter{position:relative;width:min(92vw,900px);height:min(88vh,980px);opacity:0;transform:translateY(140px) scale(.68);transition:transform 1.45s var(--ease), opacity .8s ease;filter:drop-shadow(0 30px 48px rgba(0,0,0,.28))}
+    .letter-paper{position:absolute;inset:0;border-radius:30px 30px 24px 24px;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,0) 18%),linear-gradient(180deg,var(--paper),#fff6e8 72%,var(--paper-2));border:1px solid rgba(120,92,52,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.26)}
+    .letter-paper::before{content:"";position:absolute;left:0;right:0;top:0;height:36px;border-radius:30px;background:linear-gradient(180deg,#fffdf7,#edd9bd);border-bottom:1px solid rgba(127,92,53,.14);box-shadow:0 7px 12px rgba(0,0,0,.07), inset 0 2px 4px rgba(255,255,255,.44)}
+    .letter-paper::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg, transparent 0 36px, rgba(128,108,88,.06) 36px 37px);opacity:.42;pointer-events:none}
+    .letter-content{position:absolute;inset:78px 56px 58px;color:var(--ink-paper);overflow:auto;opacity:0;transition:opacity 1s ease .6s;font-family:var(--hand);font-size:29px;line-height:1.46;scrollbar-width:thin}
+    .letter-content p{margin:0 0 .98em}
+    .close-letter-btn{position:absolute;right:16px;top:16px;width:44px;height:44px;padding:0;display:grid;place-items:center;border-radius:999px;font-size:28px;line-height:1;background:rgba(255,255,255,.72);color:#241a20;box-shadow:0 12px 22px rgba(0,0,0,.1);opacity:0;transform:translateY(-8px);transition:.4s ease .6s;pointer-events:none}
+
+    .scene{position:relative;z-index:8;opacity:0;visibility:hidden;transition:opacity .9s ease .2s, visibility .9s ease .2s}
+    .hero{min-height:100vh;display:grid;place-items:center;padding:30px 22px 30px 290px}
+    .hero-only-bg{width:min(1180px,100%);min-height:78vh;border-radius:34px;border:none;background:transparent;backdrop-filter:none;box-shadow:none;position:relative;overflow:hidden}
+    .hero-only-bg::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 28%, rgba(98,140,255,.18), transparent 14%),radial-gradient(circle at 82% 18%, rgba(255,49,79,.16), transparent 16%),radial-gradient(circle at 68% 78%, rgba(105,242,255,.1), transparent 18%),radial-gradient(circle at 50% 50%, rgba(154,115,255,.08), transparent 24%);pointer-events:none}
+    .hero-only-bg::after{content:"";position:absolute;left:8%;top:10%;width:320px;height:320px;border-radius:50%;filter:blur(58px);background:radial-gradient(circle, rgba(255,49,79,.14), transparent 70%);pointer-events:none}
+
+    .modules{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:44;padding:20px}
+    .module{position:absolute;left:50%;top:50%;width:min(92vw,860px);max-height:min(88vh,900px);opacity:0;transform:translate(-50%,-50%) scale(.94);transition:.45s ease;background:linear-gradient(180deg, rgba(10,8,16,.92), rgba(6,5,10,.92));border:1px solid rgba(255,255,255,.1);border-radius:30px;box-shadow:0 24px 60px rgba(0,0,0,.42);backdrop-filter:blur(18px);overflow:hidden;pointer-events:none}
+    .module.open{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+    .module-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+    .module-head strong{font:600 14px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase}
+    .module-body{padding:24px;max-height:min(88vh,900px);overflow:auto}
+    .module-body p,.module-body li,.module-body span{font:400 16px/1.8 var(--sans);color:rgba(255,255,255,.78)}
+    .module-body h3{margin:0 0 10px;font:500 32px/1.1 var(--serif);color:#fff}
+
+    .timer-screen{min-height:420px;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden}
+    .timer-screen::before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 18% 22%, rgba(98,140,255,.16), transparent 18%),radial-gradient(circle at 82% 18%, rgba(255,49,79,.18), transparent 20%),radial-gradient(circle at 50% 78%, rgba(105,242,255,.1), transparent 18%);pointer-events:none}
+    .timer-title{max-width:760px;margin:0 auto 24px;font:500 clamp(26px,4vw,46px)/1.18 var(--serif);color:#fff}
+    .timer-value{font:500 clamp(56px,12vw,120px)/1 var(--serif);letter-spacing:.04em;color:#fff;text-shadow:0 0 28px rgba(255,255,255,.1), 0 0 42px rgba(255,49,79,.18)}
+    .night-spawn{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:4}
+    .night-word{position:absolute;font:500 clamp(18px,2.4vw,34px)/1.1 var(--serif);color:#fff;opacity:0;animation:fadeWord 2.8s ease forwards;text-shadow:0 0 18px rgba(255,255,255,.18),0 0 30px rgba(255,49,79,.16);z-index:5;white-space:nowrap}
+    @keyframes fadeWord{0%{opacity:0;transform:translateY(10px) scale(.92)}20%{opacity:.94}100%{opacity:0;transform:translateY(-24px) scale(1.06)}}
+
+    .check-card{display:grid;gap:16px}
+    .check-box{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid rgba(255,255,255,.08);border-radius:20px;background:rgba(255,255,255,.03)}
+    .check-visual{width:28px;height:28px;border-radius:10px;border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;font:700 18px/1 var(--sans)}
+    .count-pill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font:500 14px/1 var(--sans);color:#fff}
+
+    .butterfly{position:absolute;width:70px;height:70px;transform-origin:50% 50%;filter:drop-shadow(0 10px 18px rgba(0,0,0,.2));will-change:transform,opacity;opacity:0}
+    .butterfly svg{width:100%;height:100%}
+    .butterfly .wing-left{transform-origin:78% 53%;animation:flapL .32s ease-in-out infinite alternate}
+    .butterfly .wing-right{transform-origin:22% 53%;animation:flapR .32s ease-in-out infinite alternate}
+    @keyframes flapL{from{transform:rotateY(0deg) rotate(-5deg)}to{transform:rotateY(72deg) rotate(11deg)}}
+    @keyframes flapR{from{transform:rotateY(0deg) rotate(5deg)}to{transform:rotateY(-72deg) rotate(-11deg)}}
+    .burst .butterfly{animation:burst 2.6s ease forwards}
+    @keyframes burst{0%{opacity:0;transform:translate(0,0) scale(.5) rotate(0deg)}18%{opacity:1}100%{opacity:0;transform:translate(var(--bx),var(--by)) scale(1.06) rotate(var(--br))}}
+
+    body.menu-visible .carrier{opacity:1}
+    body.opened .env-flap{transform:rotateX(-178deg)}
+    body.opened .env-seal{opacity:0;transform:translateX(-50%) translateY(-8px) scale(.72)}
+    body.opened .envelope-shadow{opacity:0;transform:translateX(-50%) scale(.7)}
+    body.opened .letter-layer{pointer-events:auto}
+    body.opened .letter{opacity:1;transform:translateY(-10px) scale(1)}
+    body.opened .letter-content{opacity:1}
+    body.opened .close-letter-btn{opacity:1;transform:translateY(0);pointer-events:auto}
+    body.envelope-hidden .carrier{opacity:0;visibility:hidden;transition:opacity .65s ease, visibility .65s ease}
+    body.scene-visible .scene{opacity:1;visibility:visible}
+    body.scene-visible{overflow-y:auto}
+
+    @media (max-width:980px){
+      .menu{left:16px;top:16px;transform:translateX(-20px);width:calc(100vw - 32px)}
+      body.menu-visible .menu{transform:translateX(0)}
+      .hero{padding:120px 16px 30px}
+    }
+    @media (max-width:760px){
+      .carrier{width:420px;height:320px}
+      .envelope-wrap{width:286px;height:206px}
+      .envelope{width:276px;height:186px}
+      .env-seal{top:74px;width:64px;height:64px}
+      .env-seal svg{width:40px;height:40px}
+      .env-name{right:38px;bottom:17px;font-size:15px}
+      .letter{width:min(97vw,720px);height:min(90vh,920px)}
+      .letter-content{inset:74px 24px 48px;font-size:22px}
+      .module{width:min(96vw,860px);max-height:86vh}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="mist"></div>
+  <div class="sparkles" id="sparkles"></div>
+  <div class="butterflies" id="butterflies"></div>
+
+  <audio id="pianoLoop" loop preload="auto">
+    <source src="piano.mp3" type="audio/mpeg">
+    <source src="piano.wav" type="audio/wav">
+  </audio>
+
+  <div class="site-shell">
+    <aside class="menu">
+      <nav class="menu-nav">
+        <button type="button" data-action="show-letter">La lettre</button>
+        <button type="button" data-action="show-bonnenuit">Bonne nuit</button>
+        <button type="button" data-action="show-vu">Vu</button>
+      </nav>
+    </aside>
+
+    <section class="intro">
+      <div class="center-stage">
+        <svg class="arrival-trails" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 600 C 120 530, 220 500, 320 410 S 540 240, 690 262 S 860 316, 1000 202"/>
+          <path d="M20 560 C 200 450, 250 430, 356 360 S 548 252, 650 284 S 818 328, 938 228"/>
+        </svg>
+        <div class="carrier" id="carrier">
+          <div class="envelope-wrap" id="openEnvelope" role="button" tabindex="0" aria-label="Ouvrir l'enveloppe">
+            <div class="envelope-shadow"></div>
+            <div class="envelope">
+              <div class="env-back"></div>
+              <div class="env-left"></div>
+              <div class="env-right"></div>
+              <div class="env-front"></div>
+              <div class="env-flap"></div>
+              <div class="env-seal" aria-hidden="true">
+                <svg viewBox="0 0 64 64"><path d="M31.9 28.7c-2.5-9.4-10.2-15.8-20.3-15.8-3.3 0-5.8 1-7.1 2.7 4.1 4.1 8 7.1 11.9 8.7-4.5 1.5-7.9 4.7-10 9.5 1.5 1.7 4.1 2.7 7.3 2.7 8.1 0 14.9-4.1 18.2-10.4 3.3 6.3 10.1 10.4 18.2 10.4 3.3 0 5.8-1 7.3-2.7-2.1-4.8-5.4-8-10-9.5 3.9-1.6 7.8-4.6 11.9-8.7-1.3-1.7-3.8-2.7-7.1-2.7-10.1 0-17.8 6.4-20.3 15.8Zm0 4.3c3.1 0 5.6 2.7 5.6 6.1 0 4.6-3.2 8-5.6 10.9-2.4-2.9-5.6-6.3-5.6-10.9 0-3.4 2.5-6.1 5.6-6.1Z"/></svg>
+              </div>
+              <div class="env-name">Pour Valentina</div>
+              <div class="env-heart" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M33.4 14.5c5.4-9.4 24-7.5 24 8.2 0 13.3-16 23.7-25.4 29.3-9.2-5.9-24-16.7-24-29.1 0-15.6 18.5-17.9 24-8.4l-4.5 11.9 7.2 4.4-5.1 11.8 8.7 7.1-4.3-15.1 5.9-3.8-4.1-5.4z"/></svg></div>
+            </div>
+            <div class="open-prompt">Ouvre l'enveloppe</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="letter-layer">
+      <div class="letter" id="letter">
+        <div class="letter-paper"></div>
+        <button class="close-letter-btn" id="closeLetter" type="button" aria-label="Fermer la lettre">×</button>
+        <div class="letter-content" id="letterContent">
+          <p><strong>Pour Valentina,</strong></p>
+          <p>Je ne sais pas si tu liras ces mots un jour. Mais si c’est le cas, lis jusqu’au bout.</p>
+          <p>Il y a quelque chose que je dois t’avouer.</p>
+          <p>La dernière conversation qu’on a eue… je l’ai provoquée. Pas par colère, pas pour te blesser. Simplement parce que je savais une chose : si la rupture ne venait pas de toi, je n’aurais jamais réussi à te laisser partir.</p>
+          <p>Je n’avais aucune envie de couper le contact. Au contraire. Mais tu avais déjà décidé que c’était terminé, et je le sentais. Alors je me suis retrouvé face à un choix assez simple : continuer à revenir vers toi encore et encore… ou accepter de disparaître de ta vie.</p>
+          <p>La vérité, c’est que je n’aurais jamais eu la force de le faire moi-même.</p>
+          <p>Alors j’ai provoqué la seule chose qui pouvait vraiment me forcer à te laisser partir : que tu me bloques.</p>
+          <p>Je sais que ça m’a probablement fait passer pour un connard dans ta tête. Et si c’est l’image que tu gardes de moi, je peux le comprendre. Mais ce n’était pas de la méchanceté. C’était simplement la seule manière que j’ai trouvée pour respecter ton choix alors que moi, au fond, je voulais exactement l’inverse.</p>
+          <p>Parce que oui… je t’aime. Et c’est précisément pour ça que je te laisse partir.</p>
+          <p>Aimer quelqu’un, parfois, ça veut dire accepter de jouer le mauvais rôle dans l’histoire pour que l’autre puisse tourner la page.</p>
+          <p>Ces quelques jours avec toi ont compté pour moi. Beaucoup plus que ce que quelques jours devraient normalement représenter. Ta voix, ta manière de me parler au début, ton énergie, même tes petites crises… tout ça me manque déjà.</p>
+          <p>Je ne vais pas faire semblant d’être détaché. Ce serait mentir.</p>
+          <p>Certaines choses que tu as dites ou faites m’ont fait mal aussi, plus que tu ne l’imagines probablement. Mais je ne t’en veux pas. Tu as tes propres sensibilités, tes propres blessures, et je sais que beaucoup de choses ne venaient pas d’une volonté de me faire souffrir.</p>
+          <p>Moi aussi j’ai les miennes.</p>
+          <p>Il y a quelque chose que je ne t’avais pas dit clairement : je suis borderline.</p>
+          <p>Je déteste utiliser ça comme excuse et je ne voulais surtout pas que tu restes avec moi par pitié. Mais ça explique quelque chose que tu as remarqué… le fait que j’aie changé.</p>
+          <p>Tu avais raison quand tu disais que je n’étais plus le même qu’au début.</p>
+          <p>Moi aussi je le voyais.</p>
+          <p>Mais ce que tu ne pouvais pas savoir, c’est que quand la peur de l’abandon s’active chez moi, quelque chose se coupe complètement. Je m’éteins. Littéralement.</p>
+          <p>Je perds ma personnalité.</p>
+          <p>Je ne suis plus le gars que tu avais rencontré au début.</p>
+          <p>Je deviens presque un robot. Silencieux, éteint, incapable d’être moi-même.</p>
+          <p>Et pendant ce temps-là, dans ma tête, j’attendais juste que ça passe. Que la confiance revienne. Que je puisse redevenir la personne que j’étais au début avec toi.</p>
+          <p>Je savais que tu voyais ce changement. Je savais que ça te faisait douter. Et tu avais raison de le remarquer.</p>
+          <p>Mais je n’arrivais pas à te l’expliquer sur le moment.</p>
+          <p>Parce que dire “je suis borderline” à quelqu’un qu’on commence à peine à connaître, c’est souvent la meilleure manière de le faire fuir. Et moi, la seule chose que je voulais, c’était me rapprocher de toi.</p>
+          <p>Alors j’ai attendu.</p>
+          <p>J’espérais simplement que tu me laisses un peu de temps pour retrouver celui que j’étais avec toi au début.</p>
+          <p>Mais tu avais déjà pris ta décision.</p>
+          <p>Et à partir de là, je me suis retrouvé à essayer de me battre pour quelque chose qui n’existait déjà plus pour toi.</p>
+          <p>C’était un sentiment horrible.</p>
+          <p>Mais malgré tout ça, il y a une chose qui n’était pas fausse.</p>
+          <p>Ce que je ressentais pour toi.</p>
+          <p>Je sais que, vu de l’extérieur, ça peut sembler ridicule. Une histoire qui n’a même pas vraiment eu le temps d’exister. Quelques jours à peine.</p>
+          <p>Mais pour moi, ce que j’ai ressenti était réel. Et je n’ai pas honte de ça.</p>
+          <p>Je ne t’écris pas pour que tu reviennes.</p>
+          <p>Je ne t’écris pas pour te convaincre de quoi que ce soit.</p>
+          <p>Je voulais simplement que tu connaisses la vérité.</p>
+          <p>Que tu saches que derrière l’image du mec sûr de lui, provocateur, parfois trop con… il y avait quelqu’un qui t’aimait vraiment. Quelqu’un dont je ne connais même pas le visage.</p>
+          <p>Maladroitement.</p>
+          <p>Trop intensément peut-être.</p>
+          <p>Mais sincèrement.</p>
+          <p>Tu vas me manquer.</p>
+          <p>Et même si ce n’est pas ce que je voulais, si partir était ce qui était le mieux pour toi… alors je respecte ça.</p>
+          <p>Je ne ferme pas la porte. Mais je ne la force pas non plus.</p>
+          <p>Bon voilà. Adieu.</p>
+          <p>Si j’ai quelque chose à te dire parce que j’ai pensé à toi ou quelque chose, je le mettrai ici, sur ce site.</p>
+          <p>Je ne te veux plus et pourtant tu vas me manquer.</p>
+          <p>Si jamais tu lis ces mots, il y a juste un bouton sur ce site pour me dire que le message est arrivé jusqu’à toi. Rien de plus.</p>
+          <p>Prends soin de toi, Valentina.</p>
+          <p>Adieu.</p>
+          <p><strong>En effet, tu étais dangereuse.</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <main class="scene" id="scene">
+      <section class="hero">
+        <div class="hero-only-bg"></div>
+      </section>
+    </main>
+
+    <section class="modules">
+      <div class="module" id="moduleBonneNuit">
+        <div class="module-head">
+          <strong>Bonne nuit</strong>
+          <button class="close-module" type="button" data-close-module="moduleBonneNuit">Fermer</button>
+        </div>
+        <div class="module-body timer-screen" id="goodNightSurface">
+          <div>
+            <p class="timer-title">Tout les bonnes nuits que j’ai oublié depuis ta naissance, et ceux que je pourrais jamais te dire</p>
+            <div class="timer-value" id="timerValue">12</div>
+          </div>
+          <div class="night-spawn" id="nightSpawn"></div>
+        </div>
+      </div>
+
+      <div class="module" id="moduleVu">
+        <div class="module-head">
+          <strong>Vu</strong>
+          <button class="close-module" type="button" data-close-module="moduleVu">Fermer</button>
+        </div>
+        <div class="module-body">
+          <div class="check-card">
+            <h3>J’ai bien tout lu</h3>
+            <div class="check-box">
+              <div class="check-visual" id="checkVisual">□</div>
+              <span>Je confirme avoir tout lu.</span>
+            </div>
+            <button class="check-btn" id="markReadBtn" type="button">Valider</button>
+            <div class="count-pill">Lectures confirmées : <strong id="readCount">0</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const sparkles = document.getElementById('sparkles');
+    const butterfliesLayer = document.getElementById('butterflies');
+    const carrier = document.getElementById('carrier');
+    const openEnvelope = document.getElementById('openEnvelope');
+    const closeLetter = document.getElementById('closeLetter');
+    const timerValue = document.getElementById('timerValue');
+    const nightSpawn = document.getElementById('nightSpawn');
+    const readCount = document.getElementById('readCount');
+    const markReadBtn = document.getElementById('markReadBtn');
+    const checkVisual = document.getElementById('checkVisual');
+    const modules = [...document.querySelectorAll('.module')];
+    const pianoLoop = document.getElementById('pianoLoop');
+    const letterContentEl = document.getElementById('letterContent');
+    let readTracked = false;
+    const goodNightSurface = document.getElementById('goodNightSurface');
+
+    let opened = false;
+    let letterOpenTimestamp = null;
+    let timeTracked = false;
+    let audioStarted = false;
+    let goodnightTimer = null;
+    let spawnWordsTimer = null;
+    let goodNightClicks = 0;
+    let goodNightActive = false;
+
+    const palettes = [
+      {a:'#8cc4ff', b:'#61f0ff', c:'#f4ffff'},
+      {a:'#ff94d3', b:'#ffb36f', c:'#fff4d8'},
+      {a:'#b69bff', b:'#ff9fe7', c:'#fff5ff'},
+      {a:'#8ee5c7', b:'#d6ff92', c:'#f7ffea'}
+    ];
+
+    function createSparkles(){
+      sparkles.innerHTML='';
+      const count=Math.min(56, Math.floor(window.innerWidth/26));
+      for(let i=0;i<count;i++){
+        const s=document.createElement('div');
+        s.className='spark';
+        const size=1.6+Math.random()*2.4;
+        s.style.width=size+'px';
+        s.style.height=size+'px';
+        s.style.left=Math.random()*100+'%';
+        s.style.top=Math.random()*100+'%';
+        s.style.animationDuration=(3+Math.random()*5)+'s';
+        s.style.animationDelay=(-Math.random()*6)+'s';
+        sparkles.appendChild(s);
+      }
+    }
+
+    function butterflySVG(p){
+      return `<svg viewBox="0 0 120 120" aria-hidden="true">
+        <g class="wing-left">
+          <path d="M57 58 C37 18, 8 14, 17 52 C22 72, 40 82, 57 71 Z" fill="${p.a}"/>
+          <path d="M56 61 C39 72, 24 88, 26 106 C43 104, 55 93, 61 74 Z" fill="${p.b}"/>
+          <path d="M50 46 C40 31, 25 28, 25 49 C31 55, 39 58, 50 57 Z" fill="${p.c}" opacity=".68"/>
+          <path d="M51 58 C41 49, 30 47, 20 53" stroke="rgba(255,255,255,.16)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        </g>
+        <g class="wing-right">
+          <path d="M63 58 C83 18, 112 14, 103 52 C98 72, 80 82, 63 71 Z" fill="${p.a}"/>
+          <path d="M64 61 C81 72, 96 88, 94 106 C77 104, 65 93, 59 74 Z" fill="${p.b}"/>
+          <path d="M70 46 C80 31, 95 28, 95 49 C89 55, 81 58, 70 57 Z" fill="${p.c}" opacity=".68"/>
+          <path d="M69 58 C79 49, 90 47, 100 53" stroke="rgba(255,255,255,.16)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        </g>
+        <path d="M60 26 C54 34, 54 48, 57 61 C59 72, 59 83, 56 94 C55 98, 57 101, 60 101 C63 101, 65 98, 64 94 C61 83, 61 72, 63 61 C66 48, 66 34, 60 26 Z" fill="#262228"/>
+        <path d="M58 31 C53 22, 46 16, 39 13" stroke="#262228" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M62 31 C67 22, 74 16, 81 13" stroke="#262228" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    function spawnArrivalButterflies(){
+      butterfliesLayer.innerHTML='';
+      const cx=window.innerWidth*.5, cy=window.innerHeight*.5;
+      const specs=[
+        {x:-120,y:window.innerHeight*.72,s:1.05,delay:0,dur:7.4,rx:cx-150,ry:cy-50},
+        {x:-90,y:window.innerHeight*.48,s:.9,delay:.2,dur:7.2,rx:cx-110,ry:cy-18},
+        {x:window.innerWidth+120,y:window.innerHeight*.64,s:1.1,delay:.08,dur:7.5,rx:cx+146,ry:cy-56},
+        {x:window.innerWidth+90,y:window.innerHeight*.42,s:.9,delay:.28,dur:7.3,rx:cx+110,ry:cy-12},
+        {x:cx,y:-100,s:.85,delay:.46,dur:6.9,rx:cx,ry:cy-124}
+      ];
+      specs.forEach((sp,i)=>{
+        const b=document.createElement('div');
+        b.className='butterfly';
+        const size=58+Math.random()*18;
+        b.style.width=size+'px';
+        b.style.height=size+'px';
+        b.innerHTML=butterflySVG(palettes[i%palettes.length]);
+        butterfliesLayer.appendChild(b);
+        b.animate([
+          {transform:`translate(${sp.x}px,${sp.y}px) scale(${sp.s*.52}) rotate(${sp.x<0?-18:18}deg)`,opacity:0},
+          {transform:`translate(${sp.x+(cx-sp.x)*.24}px,${sp.y+(cy-sp.y)*.22-44}px) scale(${sp.s*.78}) rotate(${sp.x<0?8:-8}deg)`,opacity:1,offset:.3},
+          {transform:`translate(${sp.rx}px,${sp.ry}px) scale(${sp.s}) rotate(${sp.x<0?-2:2}deg)`,opacity:1}
+        ],{duration:sp.dur*1000,delay:sp.delay*1000,fill:'forwards',easing:'cubic-bezier(.2,.9,.15,1)'});
+      });
+      setTimeout(()=>{
+        carrier.classList.add('ready');
+        document.body.classList.add('menu-visible');
+      },6200);
+    }
+
+    function spawnAmbientButterflies(){
+      butterfliesLayer.innerHTML='';
+      const count=Math.max(7,Math.min(12,Math.floor(window.innerWidth/155)));
+      for(let i=0;i<count;i++){
+        const b=document.createElement('div');
+        b.className='butterfly';
+        b.innerHTML=butterflySVG(palettes[i%palettes.length]);
+        const size=46+Math.random()*24;
+        b.style.width=size+'px';
+        b.style.height=size+'px';
+        butterfliesLayer.appendChild(b);
+        const x1=Math.random()*window.innerWidth, y1=Math.random()*window.innerHeight*.74+40;
+        const x2=Math.random()*window.innerWidth, y2=Math.random()*window.innerHeight*.74+40;
+        const x3=Math.random()*window.innerWidth, y3=Math.random()*window.innerHeight*.74+40;
+        const drift=Math.random()*40-20;
+        b.animate([
+          {transform:`translate(${x1}px,${y1}px) scale(.76) rotate(${Math.random()*14-7}deg)`,opacity:0},
+          {transform:`translate(${(x1+x2)/2 + drift}px,${(y1+y2)/2-32}px) scale(1.02) rotate(${Math.random()*18-9}deg)`,opacity:.96,offset:.28},
+          {transform:`translate(${x2}px,${y2}px) scale(.9) rotate(${Math.random()*22-11}deg)`,opacity:.9,offset:.58},
+          {transform:`translate(${x3}px,${y3}px) scale(.8) rotate(${Math.random()*20-10}deg)`,opacity:0}
+        ],{duration:13000+Math.random()*9000,iterations:Infinity,delay:-Math.random()*9000,easing:'ease-in-out'});
+      }
+    }
+
+    function burstButterflies(){
+      butterfliesLayer.classList.add('burst');
+      butterfliesLayer.innerHTML='';
+      const amount=Math.max(10,Math.min(16,Math.floor(window.innerWidth/95)));
+      for(let i=0;i<amount;i++){
+        const b=document.createElement('div');
+        b.className='butterfly';
+        const x=window.innerWidth*.5+(Math.random()*80-40);
+        const y=window.innerHeight*.5+(Math.random()*60-30);
+        b.style.left=x+'px';
+        b.style.top=y+'px';
+        const size=56+Math.random()*18;
+        b.style.width=size+'px';
+        b.style.height=size+'px';
+        b.style.setProperty('--bx',(Math.random()*360-180)+'px');
+        b.style.setProperty('--by',(-120-Math.random()*220)+'px');
+        b.style.setProperty('--br',((Math.random()*160-80))+'deg');
+        b.innerHTML=butterflySVG(palettes[(i+1)%palettes.length]);
+        butterfliesLayer.appendChild(b);
+      }
+      setTimeout(()=>{
+        butterfliesLayer.classList.remove('burst');
+        spawnAmbientButterflies();
+      },2400);
+    }
+
+    function setupAudio(){
+      if(audioStarted) return;
+      audioStarted = true;
+      pianoLoop.volume = 0;
+      pianoLoop.currentTime = 0;
+      pianoLoop.play().then(()=>{
+        const fade = setInterval(()=>{
+          if(pianoLoop.volume >= 0.72){
+            pianoLoop.volume = 0.72;
+            clearInterval(fade);
+            return;
+          }
+          pianoLoop.volume = Math.min(0.72, pianoLoop.volume + 0.04);
+        }, 180);
+      }).catch(()=>{});
+    }
+
+    function openLetter(){
+      letterOpenTimestamp = Date.now();
+      timeTracked = false;
+      try{ fetch('https://api.countapi.xyz/hit/princessepapillon/letter_open'); }catch(e){}
+
+      if(opened) return;
+      opened = true;
+      setupAudio();
+      burstButterflies();
+      document.body.classList.add('opened');
+      setTimeout(()=>document.body.classList.add('envelope-hidden'),950);
+      setTimeout(()=>document.body.classList.add('scene-visible'),1100);
+    }
+
+    function closeLetterFn(){
+      if(letterOpenTimestamp && !timeTracked){
+        const seconds = Math.floor((Date.now() - letterOpenTimestamp)/1000);
+        try{ fetch('https://api.countapi.xyz/hit/princessepapillon/time_'+Math.min(seconds,300)); }catch(e){}
+        timeTracked = true;
+      }
+      if(!opened) return;
+      opened = false;
+      closeAllModules();
+      document.body.classList.remove('opened');
+      document.body.classList.remove('envelope-hidden');
+      setTimeout(()=>document.body.classList.add('envelope-hidden'),650);
+    }
+
+    function reopenLetter(){
+      closeAllModules();
+      document.body.classList.remove('envelope-hidden');
+      if(!opened){
+        openLetter();
+        return;
+      }
+      document.body.classList.add('opened');
+    }
+
+    function closeAllModules(){
+      modules.forEach(m=>m.classList.remove('open'));
+      clearGoodNight();
+    }
+
+    function openModule(id){
+      closeAllModules();
+      const mod=document.getElementById(id);
+      if(mod) mod.classList.add('open');
+    }
+
+    function clearGoodNight(){
+      goodNightActive = false;
+      if(goodnightTimer){
+        clearInterval(goodnightTimer);
+        goodnightTimer = null;
+      }
+      if(spawnWordsTimer){
+        clearTimeout(spawnWordsTimer);
+        spawnWordsTimer = null;
+      }
+      nightSpawn.innerHTML = '';
+      timerValue.textContent = '12';
+      goodNightClicks = 0;
+    }
+
+    function spawnWord(text){
+      const el=document.createElement('div');
+      el.className='night-word';
+      el.textContent=text;
+      el.style.left=(8+Math.random()*78)+'%';
+      el.style.top=(14+Math.random()*66)+'%';
+      el.style.fontSize=(18+Math.random()*20)+'px';
+      nightSpawn.appendChild(el);
+      setTimeout(()=>el.remove(),2800);
+    }
+
+    function spawnNightWord(){
+      const rare = Math.random() < 0.02;
+      if(rare){
+        spawnWord('good girl');
+        return;
+      }
+      const words=['bonne nuit','désolé'];
+      spawnWord(words[Math.floor(Math.random()*words.length)]);
+    }
+
+    function scheduleNightWords(){
+      if(!goodNightActive) return;
+      spawnNightWord();
+      spawnWordsTimer = setTimeout(scheduleNightWords, 180 + Math.random() * 260);
+    }
+
+    function startGoodNight(){
+      clearGoodNight();
+      openModule('moduleBonneNuit');
+      let remaining=12;
+      timerValue.textContent=remaining;
+      goodnightTimer=setInterval(()=>{
+        remaining--;
+        timerValue.textContent=remaining;
+        if(remaining<=0){
+          clearInterval(goodnightTimer);
+          goodnightTimer=null;
+          timerValue.textContent='';
+          goodNightActive = true;
+          for(let i=0;i<18;i++){
+            setTimeout(()=>{
+              if(goodNightActive) spawnNightWord();
+            }, i * 90);
+          }
+          scheduleNightWords();
+        }
+      },1000);
+    }
+
+    goodNightSurface.addEventListener('click',()=>{
+      if(!document.getElementById('moduleBonneNuit').classList.contains('open')) return;
+      goodNightClicks++;
+      if(goodNightClicks % 3 === 0) spawnWord('je');
+      if(goodNightClicks % 10 === 0) spawnWord("t'aime");
+    });
+
+    function initReadCounter(){
+      const countKey='pp_read_count';
+      const doneKey='pp_read_done';
+      const count=Number(localStorage.getItem(countKey)||'0');
+      readCount.textContent=String(count);
+      const done=localStorage.getItem(doneKey)==='1';
+      if(done){
+        checkVisual.textContent='✓';
+        markReadBtn.disabled=true;
+        markReadBtn.textContent='Déjà validé';
+        markReadBtn.style.opacity='.6';
+      }
+      markReadBtn.addEventListener('click',()=>{
+        if(localStorage.getItem(doneKey)==='1') return;
+        const current=Number(localStorage.getItem(countKey)||'0')+1;
+        localStorage.setItem(countKey,String(current));
+        localStorage.setItem(doneKey,'1');
+        readCount.textContent=String(current);
+        checkVisual.textContent='✓';
+        markReadBtn.disabled=true;
+        markReadBtn.textContent='Déjà validé';
+        markReadBtn.style.opacity='.6';
+      });
+    }
+
+    openEnvelope.addEventListener('click', openLetter);
+    openEnvelope.addEventListener('keydown',(e)=>{
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        openLetter();
+      }
+    });
+    closeLetter.addEventListener('click', closeLetterFn);
+
+    document.addEventListener('click',(event)=>{
+      const t=event.target;
+      const action=t.getAttribute('data-action');
+      const closeId=t.getAttribute('data-close-module');
+      if(action==='show-letter') reopenLetter();
+      if(action==='show-bonnenuit') startGoodNight();
+      if(action==='show-vu') openModule('moduleVu');
+      if(closeId){
+        document.getElementById(closeId)?.classList.remove('open');
+        if(closeId==='moduleBonneNuit') clearGoodNight();
+      }
+      if(audioStarted && pianoLoop.paused){
+        pianoLoop.play().catch(()=>{});
+      }
+    });
+
+    document.addEventListener('keydown',(event)=>{
+      if(event.key==='Escape') closeAllModules();
+    });
+
+    window.addEventListener('resize',()=>{
+      
+    // track when someone reaches the bottom of the letter
+    if(letterContentEl){
+      letterContentEl.addEventListener('scroll',()=>{
+        if(letterOpenTimestamp && !timeTracked){
+          const seconds = Math.floor((Date.now() - letterOpenTimestamp)/1000);
+          if(seconds > 20){
+            try{ fetch('https://api.countapi.xyz/hit/princessepapillon/read_time_20plus'); }catch(e){}
+            timeTracked = true;
+          }
+        }
+      });
+
+      letterContentEl.addEventListener('scroll',()=>{
+        if(readTracked) return;
+        const nearBottom = letterContentEl.scrollTop + letterContentEl.clientHeight >= letterContentEl.scrollHeight - 20;
+        if(nearBottom){
+          readTracked = true;
+          try{ fetch('https://api.countapi.xyz/hit/princessepapillon/letter_read'); }catch(e){}
+        }
+      });
+    }
+
+    createSparkles();
+      if(!opened) spawnArrivalButterflies();
+      else spawnAmbientButterflies();
+    });
+
+    createSparkles();
+    spawnArrivalButterflies();
+    initReadCounter();
+  </script>
+</body>
+</html>
