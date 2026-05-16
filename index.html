@@ -831,6 +831,27 @@ Prends ça comme tu veux.
     const burstLayer = document.getElementById('burstLayer');
     const soundBtn = document.getElementById('soundBtn');
 
+    const tracked = new Set();
+    let currentScrollTracked = false;
+
+    function trackEvent(name, label = '') {
+      const path = label ? `/event/${name}/${label}` : `/event/${name}`;
+      if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+        window.goatcounter.count({
+          path,
+          title: label ? `${name} - ${label}` : name,
+          event: true
+        });
+      }
+    }
+
+    function trackOnce(name, label = '') {
+      const key = `${name}:${label}`;
+      if (tracked.has(key)) return;
+      tracked.add(key);
+      trackEvent(name, label);
+    }
+
     let opened = false;
     let introDone = false;
     let activeLetter = 'current';
@@ -843,6 +864,7 @@ Prends ça comme tu veux.
     function startExperience() {
       if (introDone) return;
       introDone = true;
+      trackOnce('intro_finished');
       intro.classList.add('fade-out');
       startGoodnightSequence();
       setTimeout(() => {
@@ -861,6 +883,8 @@ Prends ça comme tu veux.
     envelope.addEventListener('click', () => {
       if (!envelope.classList.contains('ready')) return;
       opened = true;
+      trackEvent('envelope_clicked');
+      trackOnce('opened_letter', activeLetter);
       startMusicSoftly();
       envelope.classList.add('open');
       spawnBurst(30);
@@ -876,12 +900,16 @@ Prends ça comme tu veux.
       button.addEventListener('click', () => {
         const target = button.dataset.letter;
         if (target === activeLetter && letterShell.classList.contains('show') && !letterShell.classList.contains('hidden')) return;
+        trackEvent('letter_tab_clicked', target);
+        trackOnce('opened_letter', target);
+        currentScrollTracked = false;
         setLetter(target, true);
         reopenEnvelopeThenLetter();
       });
     });
 
     closeLetter.addEventListener('click', () => {
+      trackEvent('closed_letter', activeLetter);
       letterShell.classList.remove('show');
       letterShell.classList.add('closing');
       setTimeout(() => {
@@ -932,7 +960,21 @@ Prends ça comme tu veux.
       letterTitle.textContent = data.title;
       letterBody.textContent = data.body;
       letter.scrollTop = 0;
+      currentScrollTracked = false;
     }
+
+    letter.addEventListener('scroll', () => {
+      const maxScroll = letter.scrollHeight - letter.clientHeight;
+      if (maxScroll <= 0) return;
+      const progress = letter.scrollTop / maxScroll;
+      if (progress > .35) trackOnce('read_35_percent', activeLetter);
+      if (progress > .70) trackOnce('read_70_percent', activeLetter);
+      if (progress > .92 && !currentScrollTracked) {
+        currentScrollTracked = true;
+        trackEvent('read_to_bottom', activeLetter);
+        trackOnce('read_to_bottom_once', activeLetter);
+      }
+    });
 
     function startGoodnightSequence() {
       if (goodnightTimer) return;
@@ -988,6 +1030,7 @@ Prends ça comme tu veux.
 
     document.addEventListener('dblclick', e => {
       if (letterShell.classList.contains('show') && !letterShell.classList.contains('hidden')) return;
+      trackEvent('double_click_easter_egg');
       spawnFloatingWord('secret-word', 'petit chat');
       spawnBurst(8);
     });
@@ -995,12 +1038,19 @@ Prends ça comme tu veux.
     document.addEventListener('click', e => {
       if (e.target.closest('button')) return;
       if (letterShell.classList.contains('show') && !letterShell.classList.contains('hidden')) return;
-      if (Math.random() < .35) spawnFloatingWord('secret-word', Math.random() < .5 ? 'je' : 't’aime');
+      if (Math.random() < .35) {
+        const word = Math.random() < .5 ? 'je' : 't’aime';
+        trackEvent('click_easter_egg', word);
+        spawnFloatingWord('secret-word', word);
+      }
     });
 
     document.addEventListener('wheel', () => {
       if (letterShell.classList.contains('show') && !letterShell.classList.contains('hidden')) return;
-      if (Math.random() < .18) spawnFloatingWord('sorry', 'pardon :(');
+      if (Math.random() < .18) {
+        trackEvent('scroll_easter_egg');
+        spawnFloatingWord('sorry', 'pardon :(');
+      }
     }, { passive: true });
 
     document.addEventListener('touchmove', e => {
@@ -1011,7 +1061,23 @@ Prends ça comme tu veux.
     }, { passive: true });
 
     soundBtn.addEventListener('click', () => {
+      trackEvent('sound_button_clicked', musicOn ? 'off' : 'on');
       if (musicOn) stopMusic(); else startMusicSoftly();
+    });
+
+    setTimeout(() => trackOnce('stayed_15s'), 15000);
+    setTimeout(() => trackOnce('stayed_30s'), 30000);
+    setTimeout(() => trackOnce('stayed_60s'), 60000);
+    setTimeout(() => trackOnce('stayed_120s'), 120000);
+    setTimeout(() => trackOnce('stayed_300s'), 300000);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') trackEvent('left_or_tab_hidden');
+      if (document.visibilityState === 'visible') trackEvent('returned_to_tab');
+    });
+
+    window.addEventListener('beforeunload', () => {
+      trackEvent('page_closed');
     });
 
     function startMusicSoftly() {
@@ -1040,6 +1106,7 @@ Prends ça comme tu veux.
         }, 1150);
         musicNodes.push(interval);
         musicOn = true;
+        trackOnce('music_started');
         soundBtn.textContent = 'son : on';
       } catch (e) {
         soundBtn.textContent = 'son indisponible';
@@ -1048,6 +1115,7 @@ Prends ça comme tu veux.
 
     function stopMusic() {
       musicOn = false;
+      trackEvent('music_stopped');
       musicNodes.forEach(clearInterval);
       musicNodes = [];
       soundBtn.textContent = 'son : off';
@@ -1214,5 +1282,7 @@ Prends ça comme tu veux.
     animateRain();
     animateFx();
   </script>
+<script data-goatcounter="https://hexed.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
